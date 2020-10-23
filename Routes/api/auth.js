@@ -16,7 +16,7 @@ router.post('/register', (req, resp) => {
 
     User.findOne({email: req.body.email})
     .then(data => {
-        console.log(data);
+     
         if(data){
             resp.json({'EmailAlreadyRegistered': 'User with this email is already registered'})
         }
@@ -26,7 +26,8 @@ router.post('/register', (req, resp) => {
                 name: req.body.name,
                 email: req.body.email,
                 password: req.body.password,
-                phoneNumber: req.body.phoneNumber
+                phoneNumber: req.body.phoneNumber,
+                displayName: req.body.displayName
             })
 
             bcrypt.genSalt(10, (err, salt) => {
@@ -68,7 +69,8 @@ router.post('/login', (req, resp) => {
                     const payload = {
                         id: userData.id,
                         name: userData.name,
-                        email: userData.email
+                        email: userData.email,
+                        displayName: userData.displayName
                     }
                     req.session.user = payload
                    
@@ -104,6 +106,84 @@ router.post('/login', (req, resp) => {
     .catch(err => console.log(err.message))
 
 });
+
+router.get('/search/:tHandle', passport.authenticate('jwt', {session: false}), (req, resp) => {
+
+    const tHandle = req.params.tHandle
+
+    User.find({displayName: new RegExp(tHandle)})
+    .then(data => {
+        if(!data){
+            resp.json(400).json({NoUserFound: 'No user found with this twitter handle'})
+        }
+        
+        resp.json(data)
+
+    })
+    .catch(err => console.log(err))
+})
+
+router.post('/follow/:id', passport.authenticate('jwt', {session: false}), (req, resp) => {
+
+    console.log('dsfsaddsa');
+
+    const id = req.params.id
+    console.log(`id is ${id}`);
+
+    console.log(req.user);
+
+    if(req.user.id === req.params.id){
+        resp.status(400).json({AlreadyFollow: 'You cannot follow yourself'})
+    }
+    else{
+        User.findById({_id: req.params.id})
+        .then(user => {
+    
+            console.log('afasd');
+    
+            //checking if the user of this id is present
+    
+            console.log('sadasdsR:'+user);
+    
+            if(!user){
+                resp.status(400).json({UserNotFound: 'User of this id is not found. Search again.'})
+            }
+            else{
+                console.log('inside here');
+                if(user.followers.filter(follower => 
+                    follower.toString() === req.user.id.toString()).length > 0){
+                    return resp.status(400).json({ alreadyfollow : "You already followed the user"})
+                }
+                
+                else{
+                    console.log(`printing user: ${user}`);
+                    console.log(`printign userisds: ${req.user.id}`);
+            
+                    user.followers.push(req.user.id)
+                    user.save()
+                    console.log('pushed here');
+        
+                    console.log(user);
+    
+                   
+                    console.log(req.user.email);
+                   User.findOne({email: req.user.email})
+                   .then(user => {
+                       console.log(user);
+                       user.following.unshift(req.params.id)
+                       user.save().then(user => {resp.status(200).json({Followed: 'Followed the user successfully'})})
+                       .catch(err => resp.status(400).json({Error: err.message}))
+                   })
+                   .catch(err => resp.status(400).json({Error: err.message}))
+                }
+            }
+             })
+        .catch(err => resp.status(404).json({Error: err.message}))
+    }
+
+    
+
+})
 
 router.get('/logout', (req, resp) => {
 

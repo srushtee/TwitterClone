@@ -23,7 +23,22 @@ const UserSchema = new Schema({
         type:Date,
         default: new Date()
        
-    }
+    },
+    displayName:{
+        type: String,
+        required: true
+    },
+    followers: [{
+      
+            type:Schema.Types.ObjectId,
+            ref: "myPerson"
+    }],
+    following: [{
+                
+                    type:Schema.Types.ObjectId,
+                    ref: "myPerson"
+              
+                 }]
 })
 
 module.exports = User = mongoose.model('user', UserSchema)
