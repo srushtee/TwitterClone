@@ -20,8 +20,10 @@ const PostSchema = new Schema({
     },
     likes: [{
        
+           user:{
             type:Schema.Types.ObjectId,
             ref: "myPerson"
+           }
         
     }]
 })

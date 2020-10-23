@@ -7,6 +7,7 @@ const key = require('../../Setup/myUrl')
 const passport = require('passport')
 const jsonwt = require('jsonwebtoken')
 const session = require('express-session')
+const Post = require('../../Models/PostModel')
 
 router.get('/', (req, resp) => {
     resp.json({test: 'Shabash'})
@@ -184,6 +185,66 @@ router.post('/follow/:id', passport.authenticate('jwt', {session: false}), (req,
     
 
 })
+
+// router.get('/getFeed', passport.authenticate('jwt', {session: false}), (req, resp) => {
+//     const reqUserFollowing = req.user
+    
+//     console.log(reqUserFollowing);
+
+//     const followingUsers = req.user.following
+
+//     const feedPosts = []
+
+//     if(followingUsers.length == 0){
+//         resp.status(400).json({NoFollowedUser: 'This user is not following any page.'})
+//     }
+//     else{
+//             followingUsers.map(item => {
+//                 console.log(item._id);
+//                 const userId = item._id
+//                 User.findById(userId)
+//                 .then(userData => {
+//                     if(!userData){
+//                         return resp.status(490).json({NotFound: 'not here'})
+//                     }
+//                     else{
+//                         console.log(userData);
+//                         Post.find({user: userData._id})
+//                         .then(postData => {
+//                             console.log(`postData is ${postData}`);
+//                             if(!postData){
+//                                 resp.status(490).json({NotFound: 'No post for this user'})
+//                             }
+//                             else{
+
+//                                 postData.map(data => {
+//                                     console.log(`user is: ${data.user}`);
+//                                     console.log(`postbody is ${postBody}`);
+//                                     feedPosts.user = data.user
+//                                     feedPosts.postBody = data.user
+//                                 })
+
+                                
+                                
+//                             }
+//                         })
+//                         .catch(err => resp.status(490).json({Error: err.message}))
+//                     }
+//                 })
+//                 .catch(err => resp.status(490).json({Error: err.message}))
+//             })
+
+           
+//     }
+
+// })
+
+   
+    
+   
+   
+   
+
 
 router.get('/logout', (req, resp) => {
 
